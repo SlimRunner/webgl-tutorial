@@ -18,5 +18,5 @@
 </script>
 
 <main>
-  <canvas id="glCanvas" width="512" height="512"></canvas>
+  <canvas id="glCanvas" width="640" height="480"></canvas>
 </main>
