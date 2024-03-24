@@ -8,6 +8,22 @@
     }
     const gl = canvas.getContext("webgl");
 
+    const vsSource = `
+      attribute vec4 aVertexPosition;
+      uniform vec4 uModelViewMatrix;
+      uniform mat4 uProjectionMatrix;
+      
+      void main() {
+        gl_Position = uProjectionMatrix * uModelViewMatrix * aVertexPosition;
+      }
+    `;
+
+    const fsSource = `
+      void main() {
+        gl_Color = vec4(1.0);
+      }
+    `;
+
     if (gl === null) {
       throw new Error("Unable to initialize WebGL. Your browser or machine may not support it.");
     }
