@@ -8,9 +8,13 @@
     }
     const gl = canvas.getContext("webgl");
 
+    if (gl === null) {
+      throw new Error("Unable to initialize WebGL. Your browser or machine may not support it.");
+    }
+    
     const vsSource = `
       attribute vec4 aVertexPosition;
-      uniform vec4 uModelViewMatrix;
+      uniform mat4 uModelViewMatrix;
       uniform mat4 uProjectionMatrix;
       
       void main() {
@@ -20,16 +24,21 @@
 
     const fsSource = `
       void main() {
-        gl_Color = vec4(1.0);
+        gl_FragColor = vec4(1.0);
       }
     `;
 
-    if (gl === null) {
-      throw new Error("Unable to initialize WebGL. Your browser or machine may not support it.");
+    const shaderProgram = initShaderProgram(gl, vsSource, fsSource);
+    
+    if (shaderProgram === null) {
+      throw new Error("Shader program failed to initialize.");
     }
 
     gl.clearColor(0, 0, 0, 1);
     gl.clear(gl.COLOR_BUFFER_BIT);
+
+    // functions are below
+    // TODO: refactor into modules and components
 
     function loadShader(gl: WebGLRenderingContext, type: number, source: string) {
       const shader = gl.createShader(type);
@@ -44,7 +53,7 @@
 
       if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
         console.warn(
-          "Shader compilation failed:",
+          "Shader compilation failed:\n" +
           gl.getShaderInfoLog(shader)
         );
         gl.deleteShader(shader);
@@ -59,6 +68,9 @@
       const fragmentShader = loadShader(gl, gl.FRAGMENT_SHADER, fsSource);
 
       if (!(vertexShader && fragmentShader)) {
+        console.warn(
+          "Some shaders failed to load"
+        );
         return null;
       }
 
@@ -77,7 +89,7 @@
 
       if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
         console.warn(
-          "Shader program linking failed:",
+          "Shader program linking failed:\n" +
           gl.getProgramInfoLog(shaderProgram)
         );
         return null;
