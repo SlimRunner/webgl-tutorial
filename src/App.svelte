@@ -1,5 +1,8 @@
 <script lang="ts">
   import { onMount } from "svelte";
+  import type { ProgramInfo } from "./interfaces/webgl-interfaces";
+  import { initBuffers } from "./modules/init-buffers";
+  import { drawScene } from "./modules/draw-scene";
 
   onMount(async () => {
     const canvas = <HTMLCanvasElement>document.querySelector("#glCanvas");
@@ -34,8 +37,23 @@
       throw new Error("Shader program failed to initialize.");
     }
 
+    const programInfo: ProgramInfo = {
+      program: shaderProgram,
+      attribLocations: {
+        vertexPosition: gl.getAttribLocation(shaderProgram, "aVertexPosition")
+      },
+      uniformLocations: {
+        projectionMatrix: gl.getUniformLocation(shaderProgram, "uProjectionMatrix"),
+        modelViewMatrix: gl.getUniformLocation(shaderProgram, "uModelViewMatrix"),
+      },
+    };
+
     gl.clearColor(0, 0, 0, 1);
     gl.clear(gl.COLOR_BUFFER_BIT);
+
+    const buffers = initBuffers(gl);
+
+    drawScene(gl, programInfo, buffers);
 
     // functions are below
     // TODO: refactor into modules and components
